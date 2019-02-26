@@ -49,9 +49,10 @@ int main() {
 	// Esc = 27, a = 97, d = 100, s 115, w = 119
 	while (c != 27) {
 		//Looping till get the command 'a', 'd', 'w', 's'
-		while (c != 97 && c != 100 && c != 115 && c != 119) {
+		while (c != 27 && c != 97 && c != 100 && c != 115 && c != 119) {
 			c = cvWaitKey(0);
 		}
+		if (c == 27) break;
 		// Keyboard command ::: 'a' and 'd' => vertical best seam, 'w' and 's' => horizontal best seam
 		// 'a' => Reduce width, 'd' => increase width
 		vector<int> bestSeamVert;
