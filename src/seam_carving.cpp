@@ -36,12 +36,55 @@ void findMin(int L, int U, int R, int *min, int *direction) {
 	*direction = minindex + 1;
 }
 
-int main() {
+// Runtime options. With --keys the program runs headless: key presses are
+// read from the given string instead of the keyboard and no windows are shown.
+static bool headless = false;
+static string scriptedKeys;
+static size_t keyPos = 0;
+
+static int nextKey() {
+	if (!headless) return waitKey(0);
+	return keyPos < scriptedKeys.size() ? scriptedKeys[keyPos++] : 27; // Esc when done
+}
+
+static void refresh() {
+	if (!headless) waitKey(1);
+}
+
+static void show(const string &name, const Mat &m) {
+	if (!headless) imshow(name, m);
+}
+
+static void save(const string &file, const Mat &m) {
+	if (!headless) imwrite(file, m);
+}
+
+int main(int argc, char **argv) {
+	string inputPath = "images/1.jpg";
+	string outputPath;
+	for (int a = 1; a < argc; a++) {
+		string arg = argv[a];
+		if (arg == "--keys" && a + 1 < argc) { scriptedKeys = argv[++a]; headless = true; }
+		else if (arg == "--out" && a + 1 < argc) outputPath = argv[++a];
+		else if (arg == "-h" || arg == "--help") {
+			cout << "Usage: " << argv[0] << " [image] [--keys KEYS] [--out FILE]\n"
+				<< "  a/d  remove/insert a vertical seam (width -/+ 1)\n"
+				<< "  s/w  remove/insert a horizontal seam (height -/+ 1)\n"
+				<< "  Esc  quit\n";
+			return 0;
+		}
+		else inputPath = arg;
+	}
+
 	//Display an Image
-	Mat img = imread("1.jpg", IMREAD_COLOR);
-	namedWindow("Petty", WINDOW_AUTOSIZE);
-	imshow("Petty", img);
-	int c = cvWaitKey(0);
+	Mat img = imread(inputPath, IMREAD_COLOR);
+	if (img.empty()) {
+		cerr << "Could not read image: " << inputPath << endl;
+		return 1;
+	}
+	if (!headless) namedWindow("Petty", WINDOW_AUTOSIZE);
+	show("Petty", img);
+	int c = nextKey();
 	Size sz = img.size();
 	int height = sz.height;
 	int width = sz.width;
@@ -50,7 +93,7 @@ int main() {
 	while (c != 27) {
 		//Looping till get the command 'a', 'd', 'w', 's'
 		while (c != 27 && c != 97 && c != 100 && c != 115 && c != 119) {
-			c = cvWaitKey(0);
+			c = nextKey();
 		}
 		if (c == 27) break;
 		// Keyboard command ::: 'a' and 'd' => vertical best seam, 'w' and 's' => horizontal best seam
@@ -113,9 +156,9 @@ int main() {
 					}
 				}
 			}
-			cvWaitKey(1);
-			imshow("Matrix M", M);
-			c == 97 ? imwrite("Delete_M_vertical.jpg", M) : imwrite("Increase_M_vertical.jpg", M);
+			refresh();
+			show("Matrix M", M);
+			c == 97 ? save("Delete_M_vertical.jpg", M) : save("Increase_M_vertical.jpg", M);
 			// Find the best seam in the vertical direction
 			// *** WRITE YOUR CODE ***
 			//bestseam(Size(width, height), CV_8UC1, Scalar(0));
@@ -149,8 +192,8 @@ int main() {
 				row--;
 			}
 			reverse(bestSeamVert.begin(), bestSeamVert.end());
-			cvWaitKey(1);
-			imshow("Best Seam", bestSeamMat);
+			refresh();
+			show("Best Seam", bestSeamMat);
 			img_grey.release();
 			addPaddingImg.release();
 			M.release();
@@ -217,9 +260,9 @@ int main() {
 					}
 				}
 			}
-			cvWaitKey(1);
-			imshow("Matrix M", M);
-			c == 115 ? imwrite("Delete_M_horizontal.jpg", M) : imwrite("Increase_M_horizontal.jpg", M);
+			refresh();
+			show("Matrix M", M);
+			c == 115 ? save("Delete_M_horizontal.jpg", M) : save("Increase_M_horizontal.jpg", M);
 			// Find the best seam in the horizontal direction
 			// *** WRITE YOUR CODE ***
 			
@@ -253,8 +296,8 @@ int main() {
 				col--;
 			}
 			reverse(bestSeamHori.begin(), bestSeamHori.end());
-			cvWaitKey(1);
-			imshow("Best Seam", bestSeamMat);
+			refresh();
+			show("Best Seam", bestSeamMat);
 			img_gray.release();
 			addPaddingImg.release();
 			M.release();
@@ -281,8 +324,8 @@ int main() {
 				}
 			}
 			// Show the resized image
-			imshow("Petty", img_new);
-			imwrite("Delete_real_image_vertical.jpg", img_new);
+			show("Petty", img_new);
+			save("Delete_real_image_vertical.jpg", img_new);
 			// Clone img_new into img for the next loop processing
 			img.release();
 			img = img_new.clone();
@@ -310,8 +353,8 @@ int main() {
 				}
 			}
 			// Show the resized image
-			imshow("Petty", img_new);
-			imwrite("Increase_real_image_vertical.jpg", img_new);
+			show("Petty", img_new);
+			save("Increase_real_image_vertical.jpg", img_new);
 			// Clone img_new into img for the next loop processing
 			img.release();
 			img = img_new.clone();
@@ -336,8 +379,8 @@ int main() {
 				}
 			}
 			// Show the resized image
-			imshow("Petty", img_new);
-			imwrite("Delete_real_image_horizontal.jpg", img_new);
+			show("Petty", img_new);
+			save("Delete_real_image_horizontal.jpg", img_new);
 			// Clone img_new into img for the next loop processing
 			img.release();
 			img = img_new.clone();
@@ -362,8 +405,8 @@ int main() {
 				}
 			}
 			// Show the resized image
-			imshow("Petty", img_new);
-			imwrite("Increase_real_image_horizontal.jpg", img_new);
+			show("Petty", img_new);
+			save("Increase_real_image_horizontal.jpg", img_new);
 			// Clone img_new into img for the next loop processing
 			img.release();
 			img = img_new.clone();
@@ -371,7 +414,8 @@ int main() {
 			bestSeamHori.clear();
 		}
 		if (c == 27) break;
-		c = cvWaitKey(0);
+		c = nextKey();
 	}
+	if (!outputPath.empty()) imwrite(outputPath, img);
 	return 0;
 }
