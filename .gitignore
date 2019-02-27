@@ -1,32 +1,35 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
+# Build output
+build/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
 *.exe
 *.out
 *.app
+*.ilk
+*.pdb
+*.idb
+*.tlog
+*.lastbuildstate
+*.log
+
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.suo
+*.sdf
+*.opendb
+*.VC.db
+ipch/
+
+# Images written by the program at runtime
+Delete_*.jpg
+Increase_*.jpg
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
